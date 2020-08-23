@@ -1,0 +1,56 @@
+g_pkg_flg = -bs-package-name reverse -bs-ns Reverse
+src_root_dir = /Users/anniecimack/cs17/reverse
+bsc = /Users/anniecimack/.nvm/versions/node/v12.12.0/lib/node_modules/bs-platform/lib/bsc.exe
+bsdep = /Users/anniecimack/.nvm/versions/node/v12.12.0/lib/node_modules/bs-platform/lib/bsb_helper.exe
+warnings = -w -30-40+6+7+27+32..39+44+45+101 -warn-error +101
+bsc_flags = -bs-suffix -nostdlib -I '/Users/anniecimack/cs17/reverse/node_modules/bs-platform/lib/ocaml' -color always
+ppx_flags = 
+g_pkg_incls = 
+bs_package_dev_includes = 
+g_ns = -bs-ns Reverse
+bsb_dir_group = 0
+refmt = /Users/anniecimack/.nvm/versions/node/v12.12.0/lib/node_modules/bs-platform/lib/refmt.exe
+reason_react_jsx = 
+refmt_flags = --print binary
+g_lib_incls = -I . -I src
+rule build_ast_and_module_sets_from_re
+  command = $bsc -pp "$refmt $refmt_flags" $reason_react_jsx  $ppx_flags $warnings $bsc_flags -c -o $out -bs-syntax-only -bs-binary-ast -impl $in
+  description = [34mBuilding[39m [2m${out}[22m
+build src/Demo.mlast : build_ast_and_module_sets_from_re $src_root_dir/src/Demo.re
+rule build_deps
+  command = $bsdep $g_ns -g $bsb_dir_group $in
+  restat = 1
+  description = [34mBuilding[39m [2m${out}[22m
+build src/Demo.d : build_deps src/Demo.mlast
+rule re_cmj_cmi
+  command = $bsc $g_pkg_flg  -bs-re-out -bs-super-errors $g_pkg_incls $g_lib_incls $bsc_extra_includes $warnings $bsc_flags $gentypeconfig -o $out -c  $in $postbuild
+  dyndep = $in_e.d
+  restat = 1
+  description = [34mBuilding[39m [2m${out}[22m
+build src/Demo-Reverse.cmj |  $src_root_dir/src/Demo.bs.js src/Demo-Reverse.cmi : re_cmj_cmi src/Demo.mlast ||  src/Demo.d
+  g_pkg_flg = $g_pkg_flg  -bs-package-output commonjs:src
+build src/reverse.mlast : build_ast_and_module_sets_from_re $src_root_dir/src/reverse.re
+build src/reverse.d : build_deps src/reverse.mlast
+build src/reverse-Reverse.cmj |  $src_root_dir/src/reverse.bs.js src/reverse-Reverse.cmi : re_cmj_cmi src/reverse.mlast ||  src/reverse.d
+  g_pkg_flg = $g_pkg_flg  -bs-package-output commonjs:src
+build src/HorzFlip.mlast : build_ast_and_module_sets_from_re $src_root_dir/src/HorzFlip.re
+build src/HorzFlip.d : build_deps src/HorzFlip.mlast
+build src/HorzFlip-Reverse.cmj |  $src_root_dir/src/HorzFlip.bs.js src/HorzFlip-Reverse.cmi : re_cmj_cmi src/HorzFlip.mlast ||  src/HorzFlip.d
+  g_pkg_flg = $g_pkg_flg  -bs-package-output commonjs:src
+build src/VertFlip.mlast : build_ast_and_module_sets_from_re $src_root_dir/src/VertFlip.re
+build src/VertFlip.d : build_deps src/VertFlip.mlast
+build src/VertFlip-Reverse.cmj |  $src_root_dir/src/VertFlip.bs.js src/VertFlip-Reverse.cmi : re_cmj_cmi src/VertFlip.mlast ||  src/VertFlip.d
+  g_pkg_flg = $g_pkg_flg  -bs-package-output commonjs:src
+build src/CS17setup.mlast : build_ast_and_module_sets_from_re $src_root_dir/src/CS17setup.re
+build src/CS17setup.d : build_deps src/CS17setup.mlast
+build src/CS17setup-Reverse.cmj |  $src_root_dir/src/CS17setup.bs.js src/CS17setup-Reverse.cmi : re_cmj_cmi src/CS17setup.mlast ||  src/CS17setup.d
+  g_pkg_flg = $g_pkg_flg  -bs-package-output commonjs:src
+build src/Transpose.mlast : build_ast_and_module_sets_from_re $src_root_dir/src/Transpose.re
+build src/Transpose.d : build_deps src/Transpose.mlast
+build src/Transpose-Reverse.cmj |  $src_root_dir/src/Transpose.bs.js src/Transpose-Reverse.cmi : re_cmj_cmi src/Transpose.mlast ||  src/Transpose.d
+  g_pkg_flg = $g_pkg_flg  -bs-package-output commonjs:src
+rule build_package
+  command = $bsc -w -49 -no-alias-deps -bs-cmi-only -c $in
+  restat = 1
+  description = [34mBuilding[39m [2m${out}[22m
+build Reverse.cmi : build_package Reverse.mlmap
